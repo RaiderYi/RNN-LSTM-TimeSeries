@@ -11,7 +11,9 @@ Data preprocessing includes: Interpolation of time series, Detection and replace
 The Model in this project is built on LSTM model,here is the wiki link [LSTM-Wiki](https://en.wikipedia.org/wiki/Long_short-term_memory)
 The parameters of the model are lr=0.001,nb_epoch=100, batch_size=1. 
 
-### 效果图
+### Effects 效果图  
 ![损失](https://github.com/RaiderYi/RNN-LSTM-TimeSeries/blob/master/PIC/Loss_with_Epoch.svg)
-
 ![预测](https://github.com/RaiderYi/RNN-LSTM-TimeSeries/blob/master/PIC/The_Prediction_of_Displacement.svg)
+
+### Contact 联系方式
+Email： 429507312@qq.com
