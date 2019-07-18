@@ -14,7 +14,7 @@ import keras.backend as K
 pd.set_option('display.max_columns', None)
 #显示所有行
 #pd.set_option('display.max_rows', None)
-data=pd.read_csv('data_processed.csv')
+data=pd.read_csv('data_processed_step_100.csv')
 T=data['Event_label'].shift(-1)
 M=data['Displacement_processed'].shift(-1)
 data['goal_label']=T
@@ -27,6 +27,12 @@ X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.1)
 
 X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))
 X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
+
+def root_mean_squared_error(y_true,y_pred):#定义RMSE
+    return K.sqrt(K.mean(K.square(y_pred - y_true),axis=1))
+def mean_pred(y_true, y_pred):
+    result=1-abs(y_pred-y_true)
+    return K.abs(result)
 
 def r2(y_true, y_pred):
     a = K.square(y_pred - y_true)
@@ -47,11 +53,11 @@ model.add(Dense(1, init='uniform', activation='tanh'))#output layer
 # Optimizers
 RMSProp = optimizers.RMSprop(lr=0.001,rho=0.9,epsilon=None,decay=0)
 # Compile model
-model.compile(optimizer='RMSprop',loss='mean_squared_error', )
+model.compile(optimizer='RMSprop',loss='mean_squared_error', metrics=['accuracy',mean_pred])
 
 # Fit the model
-history=model.fit(X_train, y_train, validation_data=(X_test,y_test),
-                  nb_epoch=100, batch_size=1)
+history=model.fit(X_train, y_train, validation_data=(X_test,y_test)
+                  ,nb_epoch=100, batch_size=2,verbose=1)
 # evaluate the model
 # 随机数参数
 pred_test_y = model.predict(X_test)
@@ -70,12 +76,24 @@ plt.figure(figsize=(8, 4), dpi=80)
 #plt.plot(range(len(Y[801:1000])), Y[801:1000], ls='-.',lw=2,c='g',label='ORi_Value')
 plt.plot(range(len(y_test)), y_test, ls='-.',lw=2,c='r',label='True_Value')
 plt.plot(range(len(pred_test_y)), pred_test_y, ls='-',lw=2,c='b',label='Predict_Value')
-plt.savefig('The_Prediction_of_Displacement.svg',format="svg")
+plt.savefig('The_Prediction_of_Displacement_Step_100.svg',format="svg")
 # 绘制网格
 plt.grid(alpha=0.4, linestyle=':')
 plt.legend()
 #plt.xlabel('S_V') #设置x轴的标签文本
 plt.ylabel('label') #设置y轴的标签文本
+
+plt.figure()
+# 绘制训练 & 验证的准确率值
+plt.plot(history.history['mean_pred'])
+plt.plot(history.history['val_mean_pred'])
+plt.title('Model accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.savefig('Model_accuracy_Step_100.svg',format="svg")
+
+
 # 展示
 plt.figure()
 plt.plot(history.history['loss'])
@@ -83,5 +101,6 @@ plt.plot(history.history['val_loss'])
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('Loss_with_Epoch.svg',format="svg")
+plt.title('The LOSS')
+plt.savefig('Loss_with_Epoch_Step_100.svg',format="svg")
 plt.show()
